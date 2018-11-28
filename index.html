@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Twitter Character Count</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .echbx-challenge-title {
+        text-align: center;
+        margin-bottom: 50px;
+        background: #404040;
+        border-bottom: 3px solid #23c3b4;
+        color: #FFF;
+      }
+      .echbx-challenge-title h2 {
+        font-size: 15px;
+        color: #ddd;
+        margin-top: 0;
+      }
+      a {
+        color: #23c3b4;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script crossorigin src="https://unpkg.com/react@16.4.1/umd/react.production.min.js" integrity="sha384-nknFr2hIJEELeBc74Ig3GPXUXITBKkPCdvhYiaI9N/z4w29fBDju2T1Fa8UYtYXY"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16.4.1/umd/react-dom.production.min.js" integrity="sha384-g1NqDjFFQF767CjS9GU3C/p4dLd900G4Uuxfw2GGBGI0sYo0MKCbyl+EYI2OQyWZ"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js" integrity="sha384-VgZgZqjY9Fh+YsIGYp/Vzpbz9fdsC3TLwB4MrpOstd9QcaJdH/8aYw5vwisv8i8d"></script>
+    <script type="text/babel">
+      class App extends React.Component {
+        constructor(props) {
+          super(props)
+          this.QUALIFIED_URL_REGEX =  /((https?):\/\/)?([\w\d\-]+\.)+\w{2,}(\/.+)?/
+          this.state = {value: '', charCount: 0 }
+        }
+        twitterCharCount(str) {
+          let count = 0
+          // find any qualified urls
+          const idx = this.findQualifiedUrls(str)
+          if (idx !== str.length) count += 23
+          // remove qualified urls, for each url add 23 to count
+          const noUrlStr = str.slice(0, idx)
+          // normal nfc normalised code point count
+          const foo = Array.from(noUrlStr.normalize('NFC')).map(c => c.codePointAt(0)).length
+          count += foo
+          return count
+        }
+
+        findQualifiedUrls(str) {
+          const matches = str.match(this.QUALIFIED_URL_REGEX)
+          return matches === null ? str.length : matches.index
+        }
+
+        inputHandler(e) {
+          const value = e.target.value
+          console.log('foo', value)
+          const charCount = this.twitterCharCount(value)
+          this.setState({ value, charCount })
+        }
+
+        render() {
+          return(
+          <React.Fragment>
+            <div class="echbx-challenge-title">
+              <div class="container">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <h1>Echobox JS Challenge</h1>
+                    <h2>Twitter Character Count</h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="container">
+              <div class="row">
+                <div class="col-md-6">
+                  How do you comfort a JavaScript bug? a. You console it
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group form-group-text">
+                    <label for="text-to-count" class="control-label">Tweet text</label>
+                    <textarea id="text-to-count" class="form-control text-to-count" placeholder="Please enter some text" rows="3" onChange={this.inputHandler.bind(this)} value={this.state.value}></textarea>
+                    <p class="help-block"><span class="count-message">Characters: <span class="char-count">{this.state.charCount}</span>/140</span></p>
+                  </div>
+                  <div class="form-group">
+                    <label for="image-upload">Add an image</label>
+                    <input type="file" id="image-upload" class="image-upload form-control" accept="image/*" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </React.Fragment>
+          )
+        }
+      }
+      ReactDOM.render(
+        <App />,
+        document.getElementById('app')
+      )
+    </script>
+  </body>
+
+</html>
